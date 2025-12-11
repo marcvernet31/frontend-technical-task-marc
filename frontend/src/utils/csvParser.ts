@@ -1,4 +1,5 @@
 import Papa from 'papaparse'
+import { VALID_COUNTRY_CODES } from './constants'
 
 export interface CsvLead {
   firstName: string
@@ -15,6 +16,19 @@ export interface CsvLead {
 export const isValidEmail = (email: string): boolean => {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
   return emailRegex.test(email)
+}
+
+// Normalizes a country code by trimming and converting to uppercase
+const normalizeCountryCode = (countryCode: string | null | undefined): string | undefined => {
+  if (!countryCode) return undefined
+  const normalized = countryCode.trim().toUpperCase()
+  return normalized || undefined
+}
+
+// Validates if a country code is a valid ISO 3166-1 alpha-2 code
+export const isValidCountryCode = (countryCode: string | undefined): boolean => {
+  if (!countryCode) return false
+  return VALID_COUNTRY_CODES.has(countryCode)
 }
 
 export const parseCsv = (content: string): CsvLead[] => {
@@ -68,7 +82,8 @@ export const parseCsv = (content: string): CsvLead[] => {
           lead.jobTitle = trimmedValue || undefined
           break
         case 'countrycode':
-          lead.countryCode = trimmedValue || undefined
+          const normalizedCountryCode = normalizeCountryCode(trimmedValue)
+          lead.countryCode = isValidCountryCode(normalizedCountryCode) ? normalizedCountryCode : undefined
           break
         case 'companyname':
           lead.companyName = trimmedValue || undefined

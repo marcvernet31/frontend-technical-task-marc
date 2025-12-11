@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { parseCsv, isValidEmail } from './csvParser'
+import { parseCsv, isValidEmail, isValidCountryCode } from './csvParser'
 
 describe('isValidEmail', () => {
   it('should return true for valid email addresses', () => {
@@ -19,6 +19,29 @@ describe('isValidEmail', () => {
     expect(isValidEmail('test@example')).toBe(false)
   })
 })
+
+describe('isValidCountryCode', () => {
+  it('should return true for valid ISO 3166-1 alpha-2 country codes', () => {
+    expect(isValidCountryCode('US')).toBe(true)
+    expect(isValidCountryCode('CA')).toBe(true)
+    expect(isValidCountryCode('GB')).toBe(true)
+    expect(isValidCountryCode('FR')).toBe(true)
+    expect(isValidCountryCode('DE')).toBe(true)
+    expect(isValidCountryCode('ES')).toBe(true)
+    expect(isValidCountryCode('TV')).toBe(true)
+    expect(isValidCountryCode('PK')).toBe(true)
+  })
+
+  it('should return false for invalid country codes', () => {
+    expect(isValidCountryCode('XXX')).toBe(false)
+    expect(isValidCountryCode('12')).toBe(false)
+    expect(isValidCountryCode('ABC')).toBe(false)
+    expect(isValidCountryCode('A')).toBe(false)
+    expect(isValidCountryCode('')).toBe(false)
+    expect(isValidCountryCode(undefined)).toBe(false)
+  })
+})
+
 
 describe('parseCsv', () => {
   it('should throw error for empty content', () => {
@@ -152,6 +175,26 @@ John,Doe,john@example.com,,`
     expect(result[0].jobTitle).toBeUndefined()
     expect(result[0].countryCode).toBeUndefined()
     expect(result[0].isValid).toBe(true)
+  })
+
+  it('should normalize country codes', () => {
+    const csv = `firstName,lastName,email,countryCode
+John,Doe,john@example.com,xxx
+Jane,Smith,jane@example.com,  us  
+Bob,Johnson,bob@example.com,FR
+Alice,Brown,alice@example.com,12`
+
+    const result = parseCsv(csv)
+
+    expect(result).toHaveLength(4)
+    expect(result[0].countryCode).toBe(undefined)
+    expect(result[1].countryCode).toBe('US')
+    expect(result[2].countryCode).toBe('FR')
+    expect(result[3].countryCode).toBe(undefined)
+    expect(result[0].isValid).toBe(true)
+    expect(result[1].isValid).toBe(true)
+    expect(result[2].isValid).toBe(true)
+    expect(result[3].isValid).toBe(true)
   })
 
   it('should preserve row index correctly', () => {
