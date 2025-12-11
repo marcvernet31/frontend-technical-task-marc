@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { parseCsv, isValidEmail } from './csvParser'
+import { parseCsv, isValidEmail, isValidLinkedInUrl } from './csvParser'
 
 describe('isValidEmail', () => {
   it('should return true for valid email addresses', () => {
@@ -222,5 +222,13 @@ Jane,Johnson,jane@example.com`
     expect(result[0].lastName).toBe('Doe')
     expect(result[0].email).toBe('john@example.com')
     expect(result[0].isValid).toBe(true)
+  })
+
+  it('should validate LinkedIn URLs when provided', () => {
+    expect(isValidLinkedInUrl('https://www.linkedin.com/in/marc-vernet/')).toBe(true)
+    expect(isValidLinkedInUrl('http://linkedin.com/in/user-name')).toBe(true)
+    expect(isValidLinkedInUrl('https://linkedin.com/company/some-co')).toBe(false)
+    expect(isValidLinkedInUrl('https://example.com/in/not-linkedin')).toBe(false)
+    expect(isValidLinkedInUrl('linkedin.com/in/missing-protocol')).toBe(false)
   })
 })

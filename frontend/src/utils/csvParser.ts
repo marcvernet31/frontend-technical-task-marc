@@ -7,6 +7,9 @@ export interface CsvLead {
   jobTitle?: string
   countryCode?: string
   companyName?: string
+  phoneNumber?: string
+  yearsAtCompany?: number
+  linkedinProfile?: string
   isValid: boolean
   errors: string[]
   rowIndex: number
@@ -15,6 +18,12 @@ export interface CsvLead {
 export const isValidEmail = (email: string): boolean => {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
   return emailRegex.test(email)
+}
+
+export const isValidLinkedInUrl = (url: string): boolean => {
+  if (!url) return false
+  const linkedInRegex = /^https?:\/\/(www\.)?linkedin\.com\/in\/[A-Za-z0-9\-_%]+\/?$/i
+  return linkedInRegex.test(url.trim())
 }
 
 export const parseCsv = (content: string): CsvLead[] => {
@@ -73,6 +82,18 @@ export const parseCsv = (content: string): CsvLead[] => {
         case 'companyname':
           lead.companyName = trimmedValue || undefined
           break
+        case 'phonenumber':
+          lead.phoneNumber = trimmedValue || undefined
+          break
+        case 'yearsinrole':
+          if (trimmedValue) {
+            const parsedYears = Number(trimmedValue)
+            lead.yearsAtCompany = Number.isFinite(parsedYears) ? parsedYears : undefined
+          }
+          break
+        case 'linkedinprofile':
+          lead.linkedinProfile = trimmedValue || undefined
+          break
       }
     })
 
@@ -87,6 +108,9 @@ export const parseCsv = (content: string): CsvLead[] => {
       errors.push('Email is required')
     } else if (!isValidEmail(lead.email)) {
       errors.push('Invalid email format')
+    }
+    if (lead.linkedinProfile && !isValidLinkedInUrl(lead.linkedinProfile)) {
+      errors.push('Invalid LinkedIn URL')
     }
 
     data.push({
