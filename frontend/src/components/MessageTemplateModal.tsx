@@ -106,7 +106,17 @@ export const MessageTemplateModal: FC<MessageTemplateModalProps> = ({
     }
   }, [isOpen, handleClose])
 
-  const availableFields = ['firstName', 'lastName', 'email', 'jobTitle', 'companyName', 'countryCode']
+  const availableFields = [
+    'firstName',
+    'lastName',
+    'email',
+    'jobTitle',
+    'companyName',
+    'countryCode',
+    'phoneNumber',
+    'yearsAtCompany',
+    'linkedinProfile',
+  ]
 
   const insertField = (field: string) => {
     if (textareaRef.current) {

@@ -4,6 +4,7 @@ import toast from 'react-hot-toast'
 import { api } from '../api'
 import { MessageTemplateModal } from './MessageTemplateModal'
 import { CsvImportModal } from './CsvImportModal'
+import { ViewMessageModal } from './ViewMessageModal'
 
 export const LeadsList: FC = () => {
   const [selectedLeads, setSelectedLeads] = useState<number[]>([])
@@ -11,6 +12,11 @@ export const LeadsList: FC = () => {
   const [isEnrichDropdownOpen, setIsEnrichDropdownOpen] = useState(false)
   const [isImportModalOpen, setIsImportModalOpen] = useState(false)
   const [copiedLinkedInId, setCopiedLinkedInId] = useState<number | null>(null)
+  const [viewMessageModal, setViewMessageModal] = useState<{ isOpen: boolean; message: string; leadName: string }>({
+    isOpen: false,
+    message: '',
+    leadName: '',
+  })
   const queryClient = useQueryClient()
 
   const leads = useQuery({
@@ -452,9 +458,22 @@ export const LeadsList: FC = () => {
                       <div className="text-sm text-gray-900">{lead.countryCode || '-'}</div>
                     </td>
                     <td className="px-6 py-4">
-                      <div className="text-sm text-gray-900 max-w-xs truncate" title={lead.message || ''}>
-                        {lead.message || '-'}
-                      </div>
+                      {lead.message ? (
+                        <button
+                          onClick={() =>
+                            setViewMessageModal({
+                              isOpen: true,
+                              message: lead.message!,
+                              leadName: `${lead.firstName} ${lead.lastName || ''}`.trim(),
+                            })
+                          }
+                          className="text-sm text-gray-700 hover:text-gray-900 underline"
+                        >
+                          View Message
+                        </button>
+                      ) : (
+                        <div className="text-sm text-gray-500">-</div>
+                      )}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                       {formatDate(lead.createdAt)}
@@ -502,6 +521,13 @@ export const LeadsList: FC = () => {
       />
 
       <CsvImportModal isOpen={isImportModalOpen} onClose={() => setIsImportModalOpen(false)} />
+
+      <ViewMessageModal
+        isOpen={viewMessageModal.isOpen}
+        onClose={() => setViewMessageModal({ isOpen: false, message: '', leadName: '' })}
+        message={viewMessageModal.message}
+        leadName={viewMessageModal.leadName}
+      />
     </div>
   )
 }

@@ -9,6 +9,9 @@ describe('generateMessageFromTemplate', () => {
     jobTitle: 'Software Engineer',
     companyName: 'Tech Corp',
     countryCode: 'US',
+    phoneNumber: '+1-555-123-4567',
+    yearsAtCompany: 5,
+    linkedinProfile: 'https://linkedin.com/in/johndoe',
   }
 
   const partialLead: Lead = {
